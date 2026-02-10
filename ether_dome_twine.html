@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ether Dome — A Tale of Three Fates</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IM+Fell+English:ital@0;1&display=swap');
+
+  :root {
+    --ink: #1a1208;
+    --parchment: #f5edd8;
+    --blood: #7a1c1c;
+    --ether: #2a4a5a;
+    --gold: #8b6914;
+    --fade: #6b5c3e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'IM Fell English', serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, rgba(42,74,90,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(122,28,28,0.1) 0%, transparent 50%);
+  }
+
+  #game {
+    max-width: 680px;
+    width: 100%;
+  }
+
+  .passage {
+    display: none;
+    animation: fadeIn 0.8s ease;
+  }
+  .passage.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .location-tag {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--parchment);
+    margin-bottom: 1.2rem;
+    line-height: 1.3;
+    border-bottom: 1px solid rgba(139,105,20,0.3);
+    padding-bottom: 1rem;
+  }
+
+  .narrator {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: #e8d9bc;
+    margin-bottom: 1.5rem;
+  }
+
+  .narrator em {
+    color: var(--parchment);
+    font-style: italic;
+  }
+
+  .narrator .grim {
+    color: #c49a9a;
+    font-style: italic;
+  }
+
+  .choices {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .choice-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fade);
+    margin-bottom: 0.5rem;
+  }
+
+  button.choice {
+    background: transparent;
+    border: 1px solid rgba(139,105,20,0.4);
+    color: var(--parchment);
+    font-family: 'IM Fell English', serif;
+    font-size: 0.95rem;
+    padding: 0.85rem 1.2rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1.5;
+    position: relative;
+  }
+
+  button.choice::before {
+    content: '❧';
+    color: var(--gold);
+    margin-right: 0.6rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  button.choice:hover {
+    background: rgba(139,105,20,0.08);
+    border-color: var(--gold);
+    padding-left: 1.8rem;
+  }
+
+  button.choice:hover::before { opacity: 1; }
+
+  .fate-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .fate-morton { background: rgba(42,74,90,0.4); color: #8fb8cc; }
+  .fate-jackson { background: rgba(80,50,20,0.4); color: #c9a96e; }
+  .fate-wells { background: rgba(122,28,28,0.3); color: #d4888a; }
+
+  .ending-banner {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 2rem;
+    opacity: 0.7;
+  }
+
+  .restart-btn {
+    margin-top: 2.5rem;
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(139,105,20,0.5);
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    padding: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .restart-btn:hover { background: rgba(139,105,20,0.1); }
+
+  .progress {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 2rem;
+  }
+  .progress-pip {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(139,105,20,0.2);
+    border: 1px solid rgba(139,105,20,0.4);
+  }
+  .progress-pip.filled { background: var(--gold); }
+</style>
+</head>
+<body>
+<div id="game">
+
+<!-- PASSAGE: START -->
+<div class="passage active" id="p-start">
+  <div class="location-tag">Massachusetts General Hospital · Boston · October 16, 1846</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip"></div><div class="progress-pip"></div><div class="progress-pip"></div></div>
+  <h2>The Ether Dome</h2>
+  <p class="narrator">Before the merciful veil of anesthesia, surgery was nothing less than a <em>waking nightmare</em>. Operating theaters were placed in the highest towers or lowest basements—anywhere the hallways would not echo with screaming.<br><br>
+  Today, inside the stone dome atop Massachusetts General Hospital, history holds its breath. Three men stand at the edge of a revolution that will transform medicine forever. Each believes the credit is his. Each is wrong about what the victory will cost him.<br><br>
+  <em>You are the witness. Choose whose fate you will follow.</em></p>
+  <div class="choices">
+    <div class="choice-label">Whose story will you enter?</div>
+    <button class="choice" onclick="show('p-morton-1')">William Morton — the ambitious dentist who arrived late, reeking of orange oil <span class="fate-tag fate-morton">Morton</span></button>
+    <button class="choice" onclick="show('p-jackson-1')">Charles Jackson — the chemist who whispered the idea into Morton's ear, and never forgave him for it <span class="fate-tag fate-jackson">Jackson</span></button>
+    <button class="choice" onclick="show('p-wells-1')">Horace Wells — the mentor, the true pioneer, the one history forgot <span class="fate-tag fate-wells">Wells</span></button>
+  </div>
+</div>
+
+<!-- PASSAGE: MORTON 1 -->
+<div class="passage" id="p-morton-1">
+  <div class="location-tag">The Ether Dome · Demonstration Day</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div><div class="progress-pip"></div></div>
+  <h2>Morton's Grand Entrance</h2>
+  <p class="narrator">Morton arrives late—breathless, his apparatus smelling faintly of orange. Dr. Warren, the surgeon, had already told the assembled students: <em>"As Dr. Morton has not arrived, I presume he is otherwise engaged."</em> The laughter barely fades before Morton bursts through the door.<br><br>
+  The patient, a young printer named Gilbert Abbott, lies strapped to the chair. Morton fits the glass globe inhaler to Abbott's face, and the room falls silent. Minutes pass. Abbott's eyes go glassy. His body slackens.<br><br>
+  Dr. Warren cuts. Abbott does not scream.<br><br>
+  <em>"Gentlemen,"</em> Warren announces, his voice ringing off the stone dome, <em>"this is no humbug."</em><br><br>
+  Morton basks in the applause—but already, he is scheming. The orange oil is not flavoring. It is camouflage. He intends to patent ether and grow rich from every surgery on earth.</p>
+  <div class="choices">
+    <div class="choice-label">What does Morton do next?</div>
+    <button class="choice" onclick="show('p-morton-patent')">Morton pursues the patent — filing under the name "Letheon" to obscure the simple truth of ether</button>
+    <button class="choice" onclick="show('p-morton-congress')">Morton petitions Congress for financial reward — spending years demanding recognition as the sole inventor</button>
+  </div>
+</div>
+
+<!-- PASSAGE: MORTON - PATENT -->
+<div class="passage" id="p-morton-patent">
+  <div class="location-tag">The Courts · Boston · 1847</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div></div>
+  <h2>The Smell of Orange Oil</h2>
+  <p class="narrator">The patent is granted—briefly. But the secret cannot hold. A chemist's nose, a curious colleague, a simple analysis: the orange oil is stripped away, and beneath it lies nothing but plain ether. Any apothecary sells it for pennies. The patent collapses.<br><br>
+  Charles Jackson, who claims he <em>gave</em> Morton the idea, begins assembling a dossier—every swindle Morton ever committed, every debt unpaid, every partner defrauded. He brings it before Congress. The Court refuses to admit it as evidence. The rivalry festers.<br><br>
+  Morton spends his remaining years in litigation and debt. His family sells what they own. His mind circles the same wound obsessively: <em>I showed them. I showed them and they took it from me.</em></p>
+  <div class="choices">
+    <button class="choice" onclick="show('p-morton-end')">Continue to Morton's end →</button>
+  </div>
+</div>
+
+<!-- PASSAGE: MORTON - CONGRESS -->
+<div class="passage" id="p-morton-congress">
+  <div class="location-tag">Washington D.C. · 1860s</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div></div>
+  <h2>The Petitioner</h2>
+  <p class="narrator">Morton writes letters. Morton appears before committees. Morton hires lawyers with money he does not have. Congress debates, deliberates, and declines. The war absorbs everything. Ether flows freely across every battlefield — <em>his</em> ether, he insists — and not a cent reaches him.<br><br>
+  At home, creditors circle. His wife watches him grow thin and strange. He speaks of little else. <em>Jackson is stealing my credit. They will see. They will see.</em></p>
+  <div class="choices">
+    <button class="choice" onclick="show('p-morton-end')">Continue to Morton's end →</button>
+  </div>
+</div>
+
+<!-- PASSAGE: MORTON END -->
+<div class="passage" id="p-morton-end">
+  <div class="location-tag">Central Park · New York · July 1868</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div></div>
+  <div class="ending-banner">∴ The Fate of Morton ∴</div>
+  <h2>The Pond in July</h2>
+  <p class="narrator">In the summer of 1868, Morton reads in the newspaper that Charles Jackson has received accolades in Europe for <em>inventing</em> ether anesthesia.<br><br>
+  He goes <span class="grim">apoplectic</span>. He abandons his carriage mid-ride. He runs toward the Pond in Central Park, tearing at his collar, plunging into the water to <em>cool himself.</em><br><br>
+  He does not cool. He collapses on the bank. A stroke takes him before he reaches any hospital. He is fifty-seven years old, penniless, and raging. He dies as he lived — convinced the world owes him something it will never pay.<br><br>
+  <em>His tombstone reads: "Inventor and revealer of anaesthetic inhalation." Jackson had one put up claiming the same.</em></p>
+  <button class="restart-btn" onclick="show('p-start')">↩ Return to the Dome — Choose Another Fate</button>
+</div>
+
+<!-- PASSAGE: JACKSON 1 -->
+<div class="passage" id="p-jackson-1">
+  <div class="location-tag">A Chemist's Study · Boston · 1846</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div><div class="progress-pip"></div></div>
+  <h2>The Man Behind the Idea</h2>
+  <p class="narrator">Charles Jackson did not stand in the Dome that day. He sent Morton in his place — or so Jackson tells it. In his version, Morton was barely a student, a dentist fumbling with gases, and it was <em>Jackson's mind</em> that conceived of ether's anesthetic use. He merely needed someone to demonstrate it.<br><br>
+  This is Jackson's great tragedy: he may even be telling the truth. But the world gave the credit to the man who held the inhaler. Jackson paces his study, composing letters to learned societies, to Congress, to anyone who will listen.<br><br>
+  <em>He has a history of this.</em> He claimed Samuel Morse stole the telegraph from a conversation on a steamship. He claimed credit for guncotton. He is a man of real genius, and of real obsession.</p>
+  <div class="choices">
+    <div class="choice-label">How does Jackson press his claim?</div>
+    <button class="choice" onclick="show('p-jackson-dossier')">Jackson compiles a dossier of Morton's fraudulent past — and brings it before Congress</button>
+    <button class="choice" onclick="show('p-jackson-europe')">Jackson turns to Europe — where the scientific societies are more willing to listen</button>
+  </div>
+</div>
+
+<!-- PASSAGE: JACKSON - DOSSIER -->
+<div class="passage" id="p-jackson-dossier">
+  <div class="location-tag">The Courts · 1850s</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div></div>
+  <h2>The Dossier</h2>
+  <p class="narrator">Jackson is thorough. He assembles a portrait of Morton as a swindler: debts unpaid, partnerships dissolved under suspicious circumstances, a man whose entire career is a series of confident frauds. The file is thick.<br><br>
+  The Court examines it. The Court <em>refuses to admit it.</em> Morton's past is deemed irrelevant to the question of discovery.<br><br>
+  Jackson rages. He writes more letters. The dispute becomes the background noise of both men's lives — a low hum of mutual destruction that neither can silence nor win.</p>
+  <div class="choices">
+    <button class="choice" onclick="show('p-jackson-end')">Continue to Jackson's end →</button>
+  </div>
+</div>
+
+<!-- PASSAGE: JACKSON - EUROPE -->
+<div class="passage" id="p-jackson-europe">
+  <div class="location-tag">Paris · 1850s</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div></div>
+  <h2>Accolades Across the Water</h2>
+  <p class="narrator">The French Académie de Médecine awards Jackson a prize. European scientists, removed from the politics of Boston, find his claim credible. For a brief, warm season, Jackson feels vindicated.<br><br>
+  Then the news reaches Morton. And Morton's reaction — his <em>apoplectic</em> collapse in Central Park, his death on the bank of the pond — becomes the final chapter of their war. Morton is gone. Jackson has outlived his enemy.<br><br>
+  <em>It does not feel like victory.</em> Without Morton to fight, Jackson loses the architecture of his obsession. Something comes undone.</p>
+  <div class="choices">
+    <button class="choice" onclick="show('p-jackson-end')">Continue to Jackson's end →</button>
+  </div>
+</div>
+
+<!-- PASSAGE: JACKSON END -->
+<div class="passage" id="p-jackson-end">
+  <div class="location-tag">McLean Hospital · Belmont, Massachusetts · 1873–1880</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div></div>
+  <div class="ending-banner">∴ The Fate of Jackson ∴</div>
+  <h2>The Guest at McLean</h2>
+  <p class="narrator">One rumor — persistent enough to feel like truth — places Jackson at Morton's graveside, reading the tombstone's inscription. <em>Inventor and Revealer of Anaesthetic Inhalation.</em><br><br>
+  Jackson suffers a seizure on the spot.<br><br>
+  He is admitted to McLean Hospital, the famous asylum on the hill, as a <span class="grim">guest at no cost.</span> A stroke later takes the language centers of his brain. The man whose weapon was words — arguments, letters, testimonies — is left without them.<br><br>
+  He lives there quietly, declining, until 1880. The hospital keeps him comfortable. No one argues with him. There is nothing left to argue about.</p>
+  <button class="restart-btn" onclick="show('p-start')">↩ Return to the Dome — Choose Another Fate</button>
+</div>
+
+<!-- PASSAGE: WELLS 1 -->
+<div class="passage" id="p-wells-1">
+  <div class="location-tag">Hartford, Connecticut · 1844</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div><div class="progress-pip"></div></div>
+  <h2>Before the Dome</h2>
+  <p class="narrator">Horace Wells was there first. A dentist in Hartford, he watched a laughing gas demonstration at a public entertainment — a man inhaled nitrous oxide, stumbled into a bench, gashed his leg on a nail, and <em>felt nothing.</em><br><br>
+  Wells had a tooth pulled the next day under nitrous oxide. He felt nothing either. <em>A new era of tooth-pulling!</em> he supposedly declared. He had already laid the groundwork for everything Morton would later be credited for.<br><br>
+  But his public demonstration at Massachusetts General — arranged before Morton's, before Ether Day — went wrong. The patient cried out. The students laughed. <em>Humbug!</em> they called him. The same word Warren would later use to dismiss doubt about Morton's success.<br><br>
+  Wells retreated to Hartford, humiliated. And Morton, his former student, moved forward without him.</p>
+  <div class="choices">
+    <div class="choice-label">How does Wells respond to his failure?</div>
+    <button class="choice" onclick="show('p-wells-chloroform')">Wells turns to chloroform — experimenting on himself, seeking the oblivion he cannot find in waking life</button>
+    <button class="choice" onclick="show('p-wells-paris')">Wells travels to Paris — where he is, briefly, celebrated</button>
+  </div>
+</div>
+
+<!-- PASSAGE: WELLS - CHLOROFORM -->
+<div class="passage" id="p-wells-chloroform">
+  <div class="location-tag">New York City · 1848</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div></div>
+  <h2>The Bottle and the Razor</h2>
+  <p class="narrator">Wells has taken rooms in New York. His wife does not know why he left Hartford. He tells himself it is a fresh start.<br><br>
+  The chloroform has been following him for years — first as a subject of study, then as a companion, then as a <span class="grim">necessity.</span> Under its influence, the humiliation at MGH softens. The laughter fades. He is brilliant again, unrecognized, owed.<br><br>
+  Then, on a cold January evening, he goes out under its influence and throws acid — <em>vitriol</em> — at a group of women on the street. He does not fully know why. The police arrest him. One woman's face is ruined. The judge sets bond at over two thousand dollars — an outrage, an example.<br><br>
+  Wells is allowed to retrieve a toiletry bag before they lock him up.</p>
+  <div class="choices">
+    <button class="choice" onclick="show('p-wells-end')">Continue to Wells' end →</button>
+  </div>
+</div>
+
+<!-- PASSAGE: WELLS - PARIS -->
+<div class="passage" id="p-wells-paris">
+  <div class="location-tag">Paris · 1847</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip"></div></div>
+  <h2>Recognition, Briefly</h2>
+  <p class="narrator">The Paris Medical Society declares Wells the true discoverer of anesthesia. For a moment, the warmth of it is real. He writes home. He is vindicated.<br><br>
+  But Morton's demonstration was more dramatic. More public. More American. The newspapers in Boston have already written their story, and it does not include Wells.<br><br>
+  He returns home to Hartford. The recognition fades the way warmth fades — quickly, completely, leaving the cold feeling colder than before. He begins to experiment more recklessly with the gases that first made his name. The chloroform becomes less a subject and more a <span class="grim">companion.</span></p>
+  <div class="choices">
+    <button class="choice" onclick="show('p-wells-end')">Continue to Wells' end →</button>
+  </div>
+</div>
+
+<!-- PASSAGE: WELLS END -->
+<div class="passage" id="p-wells-end">
+  <div class="location-tag">A Jail Cell · New York · January 1848</div>
+  <div class="progress"><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div><div class="progress-pip filled"></div></div>
+  <div class="ending-banner">∴ The Fate of Wells ∴</div>
+  <h2>Letters to Those He Loved</h2>
+  <p class="narrator">They let him take his bag.<br><br>
+  Inside the bag, hidden under soap and a comb, is a small bottle of chloroform and his razor — which he has quietly resharpened into something else.<br><br>
+  He sits on the edge of the jail cell cot and writes letters. To his wife. To his partners. To the colleagues who laughed at him. <em>The letters are lucid. Calm. They say goodbye without saying goodbye.</em><br><br>
+  Then he pours the chloroform onto a new silk scarf and stuffs it into his own mouth, tying a handkerchief over his face to hold it there — even as, with the hand that is still his own, he opens a <span class="grim">six-inch gash</span> at the juncture of the thigh and pelvis. The femoral artery. He has studied anatomy. He knows exactly what he is doing.<br><br>
+  The darkness comes in like anesthesia. He feels nothing. He chose that, at least.<br><br>
+  <em>He was thirty-three years old. The American Dental Association later named him the discoverer of modern anesthesia. He never knew.</em></p>
+  <button class="restart-btn" onclick="show('p-start')">↩ Return to the Dome — Begin Again</button>
+</div>
+
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.passage').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+</script>
+</body>
+</html>
