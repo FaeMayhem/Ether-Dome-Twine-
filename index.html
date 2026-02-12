@@ -1,268 +1,652 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Ether Dome</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ether Dome (Portfolio Sample)</title>
 
-<style>
+  <style>
+    /* =========================
+       BASE / THEME
+    ========================== */
+    :root{
+      --card-pad: 2.25rem;
+      --title-size: 1.9rem;
+      --body-size: 1.06rem;
+      --line: 1.9;
 
-:root {
-  --card-pad: 2rem;
-  --title-size: 1.6rem;
-  --body-size: 1.05rem;
-  --line: 1.9;
-}
+      --gold: rgba(200,164,77,0.95);
+      --gold-dim: rgba(200,164,77,0.70);
+      --ink: rgba(10,8,6,0.92);
+      --rim: rgba(90,58,16,0.7);
+      --rim2: rgba(255, 210, 120, 0.10);
+      --shadow: rgba(0,0,0,0.55);
+    }
 
-/* ====== Base Layout ====== */
+    *{ box-sizing: border-box; }
+    html, body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: rgba(235,220,190,0.92);
 
-body {
-  margin: 0;
-  background: radial-gradient(ellipse at center, #1a1208 0%, #0a0704 100%);
-  color: #e6d8b4;
-  font-family: "Georgia", serif;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* phone default */
-  min-height: 100vh;
-  padding: 3rem 1rem;
-}
+      /* phone default: start near top like an app */
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
 
-@media (min-width: 900px) {
-  body {
-    align-items: center;
-  }
-}
+      padding: 22px 14px 42px;
 
-#game {
-  max-width: 760px;
-  width: min(760px, 100%);
-  background: rgba(20, 14, 8, 0.85);
-  border: 1px solid rgba(180,140,60,0.2);
-  box-shadow: 0 0 60px rgba(0,0,0,0.7);
-  padding: var(--card-pad);
-  border-radius: 6px;
-}
+      background:
+        radial-gradient(1200px 700px at 50% 30%, rgba(60,42,18,0.34), transparent 60%),
+        radial-gradient(900px 600px at 50% 70%, rgba(0,0,0,0.80), rgba(0,0,0,0.95) 70%),
+        #000;
+    }
 
-/* ====== Typography ====== */
+    /* desktop stays centered */
+    @media (min-width: 900px){
+      body{ align-items: center; }
+    }
 
-h1 {
-  font-size: var(--title-size);
-  margin-top: 0;
-  letter-spacing: 0.5px;
-}
+    /* small screens: scale down via variables */
+    @media (max-width: 420px){
+      :root{
+        --card-pad: 1.35rem;
+        --title-size: 1.45rem;
+        --body-size: 1.0rem;
+        --line: 1.85;
+      }
+      .bar{ width: 16px; }
+    }
 
-.narrator {
-  font-size: var(--body-size);
-  line-height: var(--line);
-  margin-bottom: 1.4rem;
-}
+    @media (prefers-reduced-motion: reduce){
+      .choices, .hud, .dome-bleed{ transition: none !important; }
+    }
 
-@media (max-width: 420px){
-  :root {
-    --title-size: 1.4rem;
-    --body-size: 1rem;
-  }
-}
+    /* =========================
+       LAYOUT
+    ========================== */
+    #game{
+      width: min(760px, 100%);
+      max-width: 760px;
+      position: relative;
+    }
 
-/* ====== Buttons ====== */
+    .card{
+      position: relative;
+      border-radius: 14px;
+      padding: var(--card-pad);
+      background:
+        linear-gradient(180deg, rgba(20,14,7,0.86), rgba(10,8,6,0.92));
+      box-shadow:
+        0 25px 60px rgba(0,0,0,0.65),
+        0 0 0 1px rgba(255, 210, 120, 0.06) inset;
+      border: 1px solid rgba(90,58,16,0.35);
+      overflow: hidden;
+    }
 
-button {
-  background: transparent;
-  border: 1px solid rgba(180,140,60,0.5);
-  color: #e6d8b4;
-  padding: 0.7rem 1rem;
-  margin: 0.4rem 0;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
+    .card::before{
+      content:"";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(900px 450px at 50% 10%, rgba(200,164,77,0.12), transparent 65%),
+        radial-gradient(700px 500px at 10% 70%, rgba(200,164,77,0.06), transparent 60%),
+        radial-gradient(700px 500px at 90% 70%, rgba(200,164,77,0.05), transparent 60%);
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
 
-button:hover {
-  background: rgba(180,140,60,0.08);
-}
+    .meta{
+      position: relative;
+      z-index: 2;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(200,164,77,0.65);
+      margin-bottom: 0.8rem;
+    }
 
-/* ====== Meter ====== */
+    h1{
+      position: relative;
+      z-index: 2;
+      margin: 0 0 1rem 0;
+      font-size: var(--title-size);
+      font-weight: 500;
+      color: rgba(230,215,185,0.95);
+    }
 
-.hud {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 1rem;
-  opacity: 0;
-  transition: opacity 600ms ease;
-}
+    .narrator{
+      position: relative;
+      z-index: 2;
+      font-size: var(--body-size);
+      line-height: var(--line);
+      color: rgba(235,220,190,0.92);
+      min-height: 10.5em;
+      white-space: normal;
+    }
 
-.bar {
-  width: 20px;
-  height: 80px;
-  border: 1px solid rgba(180,140,60,0.4);
-  display: flex;
-  align-items: flex-end;
-}
+    .narrator p{
+      margin: 0 0 1rem 0;
+    }
 
-.bar div {
-  width: 100%;
-  background: rgba(139,105,20,0.6);
-  transition: height 0.6s ease;
-}
+    .narrator p:last-child{
+      margin-bottom: 0;
+    }
 
-@media (max-width: 420px){
-  .bar { width: 16px; }
-}
+    .sig{
+      position: relative;
+      z-index: 2;
+      margin-top: 0.85rem;
+      font-size: 0.9rem;
+      font-style: italic;
+      color: rgba(220,200,150,0.65);
+    }
 
-/* ====== Dome Bleed Effect ====== */
+    .choices{
+      position: relative;
+      z-index: 2;
+      margin-top: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: opacity 320ms ease;
+    }
 
-.dome-bleed {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(120,0,0,0.15), transparent 60%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
+    button{
+      appearance: none;
+      border: 1px solid rgba(90,58,16,0.55);
+      background: rgba(12,10,8,0.65);
+      color: rgba(240,225,190,0.93);
+      padding: 12px 14px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 0.98rem;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      transition: background 240ms ease, border-color 240ms ease, transform 120ms ease;
+    }
 
-</style>
+    button:hover{
+      background: rgba(30,22,12,0.75);
+      border-color: rgba(200,164,77,0.45);
+    }
+
+    button:active{
+      transform: translateY(1px);
+    }
+
+    /* =========================
+       HUD / METERS
+    ========================== */
+    .hud{
+      position: fixed;
+      left: 14px;
+      top: 14px;
+      display: flex;
+      gap: 10px;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 450ms ease;
+    }
+
+    .meter{
+      width: 18px;
+      height: 64px;
+      border-radius: 10px;
+      border: 1px solid rgba(90,58,16,0.55);
+      background: rgba(0,0,0,0.35);
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .bar{
+      width: 18px;
+      height: 18px;
+      transform-origin: bottom;
+      transition: height 320ms ease, background 320ms ease;
+    }
+
+    #ambition{ background: rgba(200,164,77,0.55); }
+    #dissolution{ background: rgba(190,60,60,0.55); }
+    #obsession{ background: rgba(120,160,220,0.55); }
+
+    /* =========================
+       DOME BLEED OVERLAY
+    ========================== */
+    .dome-bleed{
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(650px 420px at 50% 35%, rgba(190,60,60,0.18), transparent 60%),
+                  radial-gradient(1200px 900px at 50% 60%, rgba(0,0,0,0.45), rgba(0,0,0,0.75));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 600ms ease;
+      z-index: 9998;
+    }
+
+    /* =========================
+       AUDIO TOGGLE
+    ========================== */
+    #audio-toggle{
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      background: rgba(12,10,8,0.72);
+      color: rgba(200,164,77,0.92);
+      border: 1px solid rgba(90,58,16,0.55);
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      letter-spacing: 0.10em;
+      border-radius: 10px;
+      cursor: pointer;
+      z-index: 10000;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+      user-select: none;
+    }
+
+    #audio-toggle:hover{
+      background: rgba(30,22,12,0.78);
+      border-color: rgba(200,164,77,0.45);
+    }
+
+    /* subtle helper text that appears if autoplay fails */
+    #audio-hint{
+      position: fixed;
+      right: 14px;
+      top: 52px;
+      font-size: 0.78rem;
+      color: rgba(230,215,185,0.62);
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 8px 10px;
+      border-radius: 10px;
+      z-index: 10000;
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="dome-bleed" id="bleed"></div>
 
-<div class="dome-bleed" id="bleed"></div>
+  <div class="hud" id="hud" aria-hidden="true">
+    <div class="meter" title="Ambition"><div class="bar" id="ambition" style="height:20%"></div></div>
+    <div class="meter" title="Dissolution"><div class="bar" id="dissolution" style="height:20%"></div></div>
+    <div class="meter" title="Obsession"><div class="bar" id="obsession" style="height:20%"></div></div>
+  </div>
 
-<div id="game">
+  <button id="audio-toggle" type="button">Ambience ON</button>
+  <div id="audio-hint">Tap Ambience to enable sound.</div>
 
-<h1>The Ether Dome</h1>
+  <main id="game" role="main">
+    <section class="card">
+      <div class="meta">Massachusetts General Hospital • Boston • October 16, 1846</div>
+      <h1>The Ether Dome</h1>
 
-<div class="hud" id="hud">
-  <div class="bar"><div id="ambition" style="height:20%"></div></div>
-  <div class="bar"><div id="dissolution" style="height:20%"></div></div>
-  <div class="bar"><div id="obsession" style="height:20%"></div></div>
-</div>
+      <div class="narrator" id="text"></div>
+      <div class="choices" id="choices"></div>
+      <div class="sig" id="sig"></div>
+    </section>
+  </main>
 
-<div class="narrator" id="text"></div>
-<div id="choices"></div>
+  <audio id="mainAudio" src="main.mp3" loop></audio>
+  <audio id="sting" src="sting.mp3"></audio>
 
-</div>
+  <script>
+    // =========================
+    // STATE / HOOKS
+    // =========================
+    const textEl = document.getElementById("text");
+    const choicesEl = document.getElementById("choices");
+    const sigEl = document.getElementById("sig");
 
-<audio id="mainAudio" src="main.mp3" loop></audio>
-<audio id="sting" src="sting.mp3"></audio>
+    const hud = document.getElementById("hud");
+    const bleed = document.getElementById("bleed");
 
-<script>
+    const mainAudio = document.getElementById("mainAudio");
+    const sting = document.getElementById("sting");
+    const audioToggle = document.getElementById("audio-toggle");
+    const audioHint = document.getElementById("audio-hint");
 
-let state = {
-  ambition: 20,
-  dissolution: 20,
-  obsession: 20
-};
+    let audioOn = true;
 
-const textEl = document.getElementById("text");
-const choicesEl = document.getElementById("choices");
-const hud = document.getElementById("hud");
-const bleed = document.getElementById("bleed");
+    let state = {
+      ambition: 20,
+      dissolution: 20,
+      obsession: 20
+    };
 
-function updateMeters(){
-  document.getElementById("ambition").style.height = state.ambition + "%";
-  document.getElementById("dissolution").style.height = state.dissolution + "%";
-  document.getElementById("obsession").style.height = state.obsession + "%";
-
-  if(state.dissolution > 70){
-    bleed.style.opacity = "1";
-  }
-}
-
-function typeText(text, callback){
-  textEl.innerHTML = "";
-  let i = 0;
-  function typing(){
-    if(i < text.length){
-      textEl.innerHTML += text.charAt(i);
-      i++;
-      setTimeout(typing, 18);
-    } else {
-      if(callback) callback();
+    // =========================
+    // AUDIO
+    // =========================
+    function setToggleText(){
+      audioToggle.textContent = audioOn ? "Ambience ON" : "Ambience OFF";
     }
-  }
-  typing();
-}
 
-function clearChoices(){
-  choicesEl.innerHTML = "";
-}
+    audioToggle.addEventListener("click", () => {
+      if (audioOn){
+        mainAudio.pause();
+        audioOn = false;
+        audioHint.style.display = "none";
+      } else {
+        mainAudio.play().then(()=>{
+          audioHint.style.display = "none";
+        }).catch(()=>{
+          audioHint.style.display = "block";
+        });
+        audioOn = true;
+      }
+      setToggleText();
+    });
 
-function choice(text, action){
-  const btn = document.createElement("button");
-  btn.innerText = text;
-  btn.onclick = action;
-  choicesEl.appendChild(btn);
-}
-
-function start(){
-
-  document.getElementById("mainAudio").play().catch(()=>{});
-
-  typeText(
-    "The Ether Dome sits like a pale bowl turned upside down upon the hospital roof. Gaslight glows. Breath thickens. A sweetness sharp as solvent lingers in the air.",
-    ()=>{
-      choice("William Morton — ambition burns", mortonPath);
-      choice("Charles Jackson — intellect without mercy", jacksonPath);
-      choice("Horace Wells — martyr of pain", wellsPath);
+    // Attempt autoplay on load/start (mobile may block)
+    function tryAutoplay(){
+      if (!audioOn) return;
+      mainAudio.play().then(()=>{
+        audioHint.style.display = "none";
+      }).catch(()=>{
+        audioHint.style.display = "block";
+      });
     }
-  );
-}
 
-function mortonPath(){
-  hud.style.opacity = 1;
-  clearChoices();
-  state.ambition += 25;
-  updateMeters();
+    // =========================
+    // UI HELPERS
+    // =========================
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
-  typeText(
-    "Morton watches the crowd and sees not patients, but history bending toward his name.",
-    ()=>{
-      choice("Continue", reset);
+    function updateMeters(){
+      const a = clamp(state.ambition, 0, 100);
+      const d = clamp(state.dissolution, 0, 100);
+      const o = clamp(state.obsession, 0, 100);
+
+      document.getElementById("ambition").style.height = a + "%";
+      document.getElementById("dissolution").style.height = d + "%";
+      document.getElementById("obsession").style.height = o + "%";
+
+      // Dome bleed intensity tied to Dissolution
+      const bleedLevel = d >= 70 ? 1 : (d >= 55 ? 0.5 : 0);
+      bleed.style.opacity = String(bleedLevel);
     }
-  );
-}
 
-function jacksonPath(){
-  hud.style.opacity = 1;
-  clearChoices();
-  state.obsession += 30;
-  updateMeters();
-
-  typeText(
-    "Jackson feels the theft of thought more keenly than any blade.",
-    ()=>{
-      choice("Continue", reset);
+    function showHud(){
+      hud.style.opacity = 1;
+      hud.style.pointerEvents = "none";
     }
-  );
-}
 
-function wellsPath(){
-  hud.style.opacity = 1;
-  clearChoices();
-  state.dissolution += 40;
-  updateMeters();
-
-  typeText(
-    "Wells tastes bitterness beneath the ether. No one is there to witness him as he fades to black one last time.",
-    ()=>{
-      document.getElementById("sting").play();
-      choice("Reset", reset);
+    function clearChoices(){
+      choicesEl.innerHTML = "";
     }
-  );
-}
 
-function reset(){
-  state = { ambition:20, dissolution:20, obsession:20 };
-  updateMeters();
-  bleed.style.opacity = 0;
-  start();
-}
+    function choice(label, action){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = label;
+      btn.onclick = action;
+      choicesEl.appendChild(btn);
+    }
 
-start();
+    // =========================
+    // TYPEWRITER (PARAGRAPHS)
+    // =========================
+    function typeParagraphs(paragraphs, done){
+      textEl.innerHTML = "";
+      let pIndex = 0;
 
-</script>
+      function typeNext(){
+        if (pIndex >= paragraphs.length){
+          if (done) done();
+          return;
+        }
 
+        const p = document.createElement("p");
+        textEl.appendChild(p);
+
+        const text = paragraphs[pIndex];
+        let i = 0;
+
+        function tick(){
+          if (i < text.length){
+            p.textContent += text.charAt(i);
+            i++;
+            setTimeout(tick, 16);
+          } else {
+            pIndex++;
+            setTimeout(typeNext, 140);
+          }
+        }
+
+        tick();
+      }
+
+      typeNext();
+    }
+
+    // =========================
+    // NARRATIVE
+    // =========================
+    function intro(){
+      sigEl.textContent = "";
+      clearChoices();
+
+      typeParagraphs([
+        "The Ether Dome sits like a pale bowl turned upside down on the hospital roof, a chapel built for spectators. The benches are arranged in patient arcs so that nothing can be hidden—no tremor, no plea, no involuntary thrash of muscle as the blade insists. Boston’s medical men gather with their students tucked close behind them, hungry to witness suffering because suffering has always been the proof that surgery is real. Pain is the sound that confirms a boundary has been crossed.",
+        "Today, that boundary is about to be negotiated chemically.",
+        "The air is warm with breath and wool. A faint sweetness threads through it—sharp, solvent, almost floral. No one names it with reverence yet. They have come to watch a demonstration. They do not understand they have come to watch the first public permission slip for disappearance.",
+        "You are the witness. Choose whose fate you will follow, and the Dome will obligingly reshape its story around your gaze."
+      ], () => {
+        choice("William Morton — ambitious, late, reeking of orange oil", mortonPath);
+        choice("Charles Jackson — the mind behind the idea, furious at erasure", jacksonPath);
+        choice("Horace Wells — the pioneer the room once mocked", wellsPath);
+      });
+
+      tryAutoplay();
+    }
+
+    function mortonPath(){
+      showHud();
+      clearChoices();
+      sigEl.textContent = "";
+
+      state.ambition += 25;
+      state.obsession += 10;
+      updateMeters();
+
+      typeParagraphs([
+        "Morton arrives with the particular confidence of a man who has already rehearsed the applause. His hands are steady in the way a gambler’s hands are steady—steady because they’ve decided the outcome, because they can’t afford to imagine losing. He smiles as if the room belongs to him, as if the patient is only a prop placed conveniently at center stage.",
+        "He produces the glass apparatus with something like tenderness. Not for the human being on the table. For the device. For the future. For his name in print."
+      ], () => {
+        choice("Ask what it costs to be remembered", () => morton2("cost"));
+        choice("Watch the patient’s mouth for prayer", () => morton2("prayer"));
+        choice("Say nothing—let the room decide what you mean", () => morton2("silence"));
+      });
+    }
+
+    function morton2(mode){
+      clearChoices();
+
+      if (mode === "cost"){
+        state.ambition += 10;
+        state.obsession += 15;
+      } else if (mode === "prayer"){
+        state.dissolution += 10;
+      } else {
+        state.dissolution += 6;
+        state.obsession += 6;
+      }
+      updateMeters();
+
+      typeParagraphs([
+        "The patient’s chest rises, falls. The surgeon’s fingers hover with a kind of impatience disguised as professionalism. Morton positions the mask. The sweet chemical smell thickens, climbs the back of your throat, a taste that says: you can stop being a person now.",
+        "When the blade finally bites, the room leans in as one body. There should be a scream. There is not.",
+        "Morton’s eyes shine with triumph that looks almost like grief, as if part of him knows he has just invented a new kind of loneliness."
+      ], () => {
+        choice("Continue", mortonEnd);
+      });
+    }
+
+    function mortonEnd(){
+      clearChoices();
+      sigEl.textContent = "";
+
+      // sting + blackout vibe
+      sting.currentTime = 0;
+      sting.play().catch(()=>{});
+
+      typeParagraphs([
+        "The Dome applauds the absence. They clap for the empty space where agony used to live.",
+        "Morton breathes in like he’s drinking the sound. In that moment, ambition stops being a desire and becomes an appetite. He will chase this feeling until it hollows him. He will bargain with chemistry, with ethics, with anyone who will sign their name beneath his.",
+        "And when he finally understands what he’s purchased, there will be no one left in the room to witness him as he fades to black one last time."
+      ], () => {
+        choice("Reset", reset);
+      });
+    }
+
+    function jacksonPath(){
+      showHud();
+      clearChoices();
+      sigEl.textContent = "";
+
+      state.obsession += 25;
+      state.ambition += 10;
+      updateMeters();
+
+      typeParagraphs([
+        "Jackson does not enter like a showman. He enters like a verdict. His expression is tight with the rage of a man watching someone else spend the currency of his mind. He smells the ether and looks at it the way a priest looks at a stolen relic—recognition twisted into contempt.",
+        "He does not want the room to love the discovery. He wants the room to know who deserved credit for it."
+      ], () => {
+        choice("Follow his argument into the crowd", () => jackson2("argument"));
+        choice("Follow his gaze to the patient", () => jackson2("patient"));
+        choice("Follow the ether itself—chemical, blind, indifferent", () => jackson2("ether"));
+      });
+    }
+
+    function jackson2(mode){
+      clearChoices();
+
+      if (mode === "argument"){
+        state.ambition += 15;
+        state.obsession += 10;
+      } else if (mode === "patient"){
+        state.dissolution += 15;
+      } else {
+        state.dissolution += 10;
+        state.obsession += 15;
+      }
+      updateMeters();
+
+      typeParagraphs([
+        "He speaks in clipped, controlled sentences that feel like scalpels. Around him, men nod politely, the way people nod at storms they believe won’t touch them. He knows better. He knows what a room will do to a person once it smells history.",
+        "Jackson watches the demonstration like a man attending his own funeral—forced to sit quietly while someone else reads the eulogy wrong."
+      ], () => {
+        choice('Let him say it: "I was right."', jacksonEnd);
+      });
+    }
+
+    function jacksonEnd(){
+      clearChoices();
+      sigEl.textContent = "";
+
+      sting.currentTime = 0;
+      sting.play().catch(()=>{});
+
+      state.obsession += 10;
+      updateMeters();
+
+      typeParagraphs([
+        "He doesn’t shout. He doesn’t need to. The words land like a gavel in his mouth: \"I was right.\"",
+        "But being right is not the same as being remembered. The Dome does not reward correctness. It rewards spectacle. It rewards whoever can turn human vulnerability into something the audience can stomach.",
+        "Jackson will spend years trying to reclaim what he believes was stolen. The more he fights, the more the story distorts—until even he can’t tell whether he’s chasing justice or chasing the sound of his own name."
+      ], () => {
+        choice("Reset", reset);
+      });
+    }
+
+    function wellsPath(){
+      showHud();
+      clearChoices();
+      sigEl.textContent = "";
+
+      state.dissolution += 25;
+      state.obsession += 10;
+      updateMeters();
+
+      typeParagraphs([
+        "Wells carries the particular exhaustion of a man who tried to change the world once, failed publicly, and kept living anyway. He watches the Dome the way you watch a place that has already rejected you—carefully, as if it might still decide to bite.",
+        "He knows what it is to be laughed at while you are trying to save people. He knows what it is to become a cautionary tale while your hands are still stained with good intentions."
+      ], () => {
+        choice("Let him remember the humiliation", () => wells2("humiliation"));
+        choice("Let him remember the hope", () => wells2("hope"));
+        choice("Let him remember what happens later", () => wells2("later"));
+      });
+    }
+
+    function wells2(mode){
+      clearChoices();
+
+      if (mode === "humiliation"){
+        state.obsession += 10;
+        state.dissolution += 10;
+      } else if (mode === "hope"){
+        state.ambition += 10;
+        state.dissolution += 8;
+      } else {
+        state.dissolution += 20;
+        state.obsession += 10;
+      }
+      updateMeters();
+
+      typeParagraphs([
+        "In the sweet chemical haze, Wells can almost believe he’s watching a second chance. But second chances are not gentle. They demand payment. They demand flesh. They demand the quiet agreement to disappear in exchange for relief.",
+        "The Dome praises the absence again. It always praises the absence. It does not see the bodies piling up behind the miracle—men whose minds crack under the pressure of being the first to fail, the first to be mocked, the first to be forgotten."
+      ], () => {
+        choice("Continue", wellsEnd);
+      });
+    }
+
+    function wellsEnd(){
+      clearChoices();
+      sigEl.textContent = "";
+
+      sting.currentTime = 0;
+      sting.play().catch(()=>{});
+
+      // push the bleed on the way out
+      state.dissolution = Math.max(state.dissolution, 75);
+      updateMeters();
+
+      typeParagraphs([
+        "Years later, the ether won’t feel like salvation. It will feel like a door that never quite closes. Wells will fall through his own story the way a man falls through thin ice—sudden, shocked, furious at the betrayal of the surface.",
+        "The cut will be ugly. Groin to thigh, a wound that looks like an argument the body refuses to lose. And no one in the room that day will hear the exact sound his hope makes when it breaks.",
+        "There is no audience for him at the end. No benches. No applause. No Dome. No witnesses at all as he fades to black one last time."
+      ], () => {
+        choice("Reset", reset);
+      });
+    }
+
+    function reset(){
+      state = { ambition: 20, dissolution: 20, obsession: 20 };
+      updateMeters();
+      hud.style.opacity = 0;
+      intro();
+    }
+
+    // =========================
+    // START
+    // =========================
+    updateMeters();
+    intro();
+
+    // Extra: one more attempt after first tap anywhere (helps mobile)
+    document.addEventListener("pointerdown", () => {
+      // if autoplay failed earlier, this often succeeds after a user gesture
+      if (audioOn && mainAudio.paused){
+        mainAudio.play().then(()=>{ audioHint.style.display = "none"; }).catch(()=>{});
+      }
+    }, { once: true });
+
+  </script>
 </body>
 </html>
