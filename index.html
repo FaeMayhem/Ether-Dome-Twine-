@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Playable Narratives — Ether Dome</title>
+<style>
+:root { --bg:#0e0c08; --ink:#f5edd8; --accent:#8b6914; }
+body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:var(--ink); }
+main { max-width:980px; margin:0 auto; padding:2rem; }
+.card { border:1px solid rgba(139,105,20,.35); padding:1.25rem; border-radius:14px; }
+h1 { margin:0 0 .75rem 0; font-size:1.6rem; }
+p { line-height:1.6; margin:.25rem 0 1rem 0; opacity:.95; }
+a { color:var(--ink); text-decoration:none; border:1px solid rgba(139,105,20,.45); padding:.55rem .8rem; border-radius:10px; display:inline-block; margin:.5rem .5rem 0 0;}
+a:hover { border-color:var(--accent); background:rgba(139,105,20,.08); }
+iframe { width:100%; height:560px; border:1px solid rgba(139,105,20,.25); margin-top:1rem; border-radius:14px; background:#000; }
+.small { font-size:.9rem; opacity:.85; }
+code { background:rgba(245,237,216,.08); padding:.15rem .3rem; border-radius:6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>The Ether Dome — Playable Builds</h1>
+  <div class="card">
+    <p>A branching historical horror vignette set at Massachusetts General Hospital on <strong>October 16, 1846</strong>.</p>
+    <a href="./ether-dome/" target="_blank" rel="noopener">▶ Play HTML Build</a>
+    <a href="./ink/" target="_blank" rel="noopener">▶ Play Ink Build</a>
+    <a href="./twine/ether-dome.twee" target="_blank" rel="noopener">Twine Source (.twee)</a>
+    <a href="./ink/story.ink" target="_blank" rel="noopener">Ink Source (.ink)</a>
+    <p class="small">Audio: HTML build expects <code>ether-dome/audio/main.mp3</code> and <code>ether-dome/audio/sting.mp3</code>. Replace the placeholders with your Suno exports.</p>
+    <iframe src="./ether-dome/"></iframe>
+  </div>
+</main>
+</body>
+</html>
