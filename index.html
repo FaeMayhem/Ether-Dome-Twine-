@@ -268,8 +268,8 @@
 
 /* Reveal chunks */
 .para{margin:0 0 0.9rem 0;}
-.para.fade{opacity:0; transform: translateY(6px); transition: opacity calc(260ms / var(--text-speed)) ease, transform calc(260ms / var(--text-speed)) ease;}
-.para.fade.in{opacity:1; transform:none;}
+.line.fade{opacity:0; transition: opacity calc(600ms / var(--text-speed)) ease; display: inline;}
+.line.fade.in{opacity:1; transition: opacity calc(600ms / var(--text-speed)) ease;}
 button.continue{
   margin-top: 0.4rem;
   padding: 0.85rem 1rem;
@@ -471,7 +471,7 @@ function clearTypewriter(){ if(typewriterTimeout) clearTimeout(typewriterTimeout
 
 
 function revealHTML(el, html, done){
-  // Show content in 2-paragraph chunks with a fade-in, and require a Continue tap between chunks.
+  // Line-by-line reveal with fade-in controlled by text speed slider
   const parts = String(html)
     .split(/<br\s*\/?>\s*<br\s*\/?>/i)
     .map(s => s.trim())
@@ -488,11 +488,34 @@ function revealHTML(el, html, done){
 
     chunk.forEach(p=>{
       const para = document.createElement("p");
-      para.className = "para fade";
-      para.innerHTML = p;
+      para.className = "para";
+      
+      // Split paragraph into lines (by <br> tags and natural breaks)
+      const lines = p.split(/<br\s*\/?>/i).map(line => line.trim()).filter(Boolean);
+      
+      // Create line spans
+      lines.forEach((line, lineIdx) => {
+        const lineSpan = document.createElement("span");
+        lineSpan.className = "line fade";
+        lineSpan.innerHTML = line;
+        para.appendChild(lineSpan);
+        
+        // Add line break except for last line
+        if(lineIdx < lines.length - 1) {
+          para.appendChild(document.createElement("br"));
+        }
+        
+        // Stagger the reveal of each line based on text speed
+        const baseDelay = 3000; // 3 seconds between lines at 1.0x
+        const speedMultiplier = window.textSpeed || 1;
+        const delay = baseDelay / speedMultiplier;
+        
+        setTimeout(() => {
+          requestAnimationFrame(() => lineSpan.classList.add("in"));
+        }, lineIdx * delay);
+      });
+      
       el.appendChild(para);
-      // trigger transition
-      requestAnimationFrame(()=>para.classList.add("in"));
     });
 
     // If more to show, display Continue button; otherwise call done.
