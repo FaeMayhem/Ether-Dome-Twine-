@@ -60,7 +60,7 @@
     transition: opacity 700ms ease;
     background:
       linear-gradient(180deg, rgba(14,12,8,0.65), rgba(14,12,8,0.85)),
-      url("assets/img/dome.png");
+      url("https://raw.githubusercontent.com/FaeMayhem/Ether-Dome-Twine-/main/assets/img/dome.png");
     background-size: cover;
     background-position: center;
     filter: contrast(1.02) saturate(0.9);
@@ -851,7 +851,7 @@ const passages={
   epilogue:{
     location:"The Ether Dome · After",
     title:"The Architecture of Silence",
-    portrait:"assets/img/dome.png",
+    portrait:"https://raw.githubusercontent.com/FaeMayhem/Ether-Dome-Twine-/main/assets/img/dome.png",
     wash:null,
     text:`The Ether Dome empties. Boots descend the stairs. Coats sweep the air clean. The chair remains. The architecture remains. The room holds the faint sweetness of ether as though it has soaked into plaster. If you stand there long enough, you can imagine the sound that should have happened and did not.<br><br>The first time a body chose unconsciousness in the name of mercy, humanity discovered something that extends far beyond surgery: consciousness can be suspended voluntarily, without death, without sleep, without the narrative closure that usually accompanies absence. Pain was not defeated; it was bypassed. The self was not destroyed; it was set aside.<br><br>The demonstration became a triumph. The triumph became a tool. The tool became a habit. And the habit outlived the men who fought to own it.<br><br><em>The door opened in this room did not close when the surgery ended. It never has.</em>`,
     choices:{ label:"", items:[{text:"↩ Return to the Dome — Begin Again", onSelect:()=>go("start")}] }
