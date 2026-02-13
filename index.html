@@ -92,6 +92,17 @@
     position:relative;
     z-index:2;
     margin-top: var(--spacing-top);
+    animation: gameCardFade 1s ease-out;
+  }
+  @keyframes gameCardFade {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   .card{
     background: var(--card);
@@ -138,8 +149,8 @@
     box-shadow: 0 16px 35px rgba(0,0,0,0.32);
     border: 1px solid rgba(245,237,216,0.10);
     animation: portraitFade 0.6s ease-out;
-    aspect-ratio: 400 / 600;
-    object-fit: cover;
+    max-height: 70vh;
+    object-fit: contain;
   }
   .wash{ position:relative; }
   .wash:after{
@@ -268,8 +279,8 @@
 
 /* Reveal chunks */
 .para{margin:0 0 0.9rem 0;}
-.line.fade{opacity:0; transition: opacity calc(600ms / var(--text-speed)) ease; display: inline;}
-.line.fade.in{opacity:1; transition: opacity calc(600ms / var(--text-speed)) ease;}
+.line.fade{opacity:0; transition: opacity calc(7500ms / var(--text-speed)) ease; display: inline;}
+.line.fade.in{opacity:1; transition: opacity calc(7500ms / var(--text-speed)) ease;}
 button.continue{
   margin-top: 0.4rem;
   padding: 0.85rem 1rem;
@@ -506,7 +517,7 @@ function revealHTML(el, html, done){
         }
         
         // Stagger the reveal of each line based on text speed
-        const baseDelay = 3000; // 3 seconds between lines at 1.0x
+        const baseDelay = 7500; // 7.5 seconds between lines at 1.0x (7-8 second range)
         const speedMultiplier = window.textSpeed || 1;
         const delay = baseDelay / speedMultiplier;
         
