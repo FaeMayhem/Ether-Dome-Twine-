@@ -56,11 +56,11 @@
     position:fixed; inset:0;
     pointer-events:none;
     z-index:0;
-    opacity:0.22;
+    opacity:0.5;
     transition: opacity 700ms ease;
     background:
-      linear-gradient(180deg, rgba(14,12,8,0.65), rgba(14,12,8,0.85)),
-      url("https://faemayhem.github.io/Ether-Dome-Twine-/assets/img/dome.png");
+      linear-gradient(180deg, rgba(14,12,8,0.5), rgba(14,12,8,0.7)),
+      url("./assets/img/dome.png");
     background-size: cover;
     background-position: center;
     filter: contrast(1.02) saturate(0.9);
@@ -186,6 +186,7 @@
     clear: both;
     padding-top: 1rem;
     border-top: 1px solid rgba(139,105,20,0.15);
+    min-height: 2rem;
   }
   .choices.visible{ opacity: 1; transform: translateY(0); }
   .choice-label{
@@ -566,7 +567,10 @@ function revealChoices(label, items){
     });
     elChoiceButtons.appendChild(btn);
   });
-  requestAnimationFrame(()=> elChoices.classList.add("visible"));
+  // Add delay before showing choices to prevent overlap with text
+  setTimeout(() => {
+    requestAnimationFrame(()=> elChoices.classList.add("visible"));
+  }, 500);
 }
 function hideChoices(){
   elChoices.classList.remove("visible");
@@ -851,7 +855,7 @@ const passages={
   epilogue:{
     location:"The Ether Dome · After",
     title:"The Architecture of Silence",
-    portrait:"https://faemayhem.github.io/Ether-Dome-Twine-/assets/img/dome.png",
+    portrait:"./assets/img/dome.png",
     wash:null,
     text:`The Ether Dome empties. Boots descend the stairs. Coats sweep the air clean. The chair remains. The architecture remains. The room holds the faint sweetness of ether as though it has soaked into plaster. If you stand there long enough, you can imagine the sound that should have happened and did not.<br><br>The first time a body chose unconsciousness in the name of mercy, humanity discovered something that extends far beyond surgery: consciousness can be suspended voluntarily, without death, without sleep, without the narrative closure that usually accompanies absence. Pain was not defeated; it was bypassed. The self was not destroyed; it was set aside.<br><br>The demonstration became a triumph. The triumph became a tool. The tool became a habit. And the habit outlived the men who fought to own it.<br><br><em>The door opened in this room did not close when the surgery ended. It never has.</em>`,
     choices:{ label:"", items:[{text:"↩ Return to the Dome — Begin Again", onSelect:()=>go("start")}] }
